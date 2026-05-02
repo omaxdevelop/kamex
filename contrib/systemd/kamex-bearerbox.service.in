@@ -5,6 +5,8 @@ Documentation=https://kamex.dev
 
 [Service]
 Type=simple
+StandardOutput=journal
+StandardError=journal
 ExecStart=@SBINDIR@/bearerbox -v 1 /etc/kamex/kamex.conf
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always

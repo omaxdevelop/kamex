@@ -162,6 +162,17 @@ build_and_install() {
 
     log_info "Instalacija (make install-strip)..."
     make install-strip
+
+    # libgwlib.so / libgw.so idu u $prefix/lib (npr. /usr/local/lib); bez ldconfig
+    # loader često ne nalazi SONAME → greška kao kamex/systemd: libgwlib.so.0: cannot open
+    if command -v ldconfig >/dev/null 2>&1; then
+        log_info "Ažuriranje keša dinamičkog linkera (ldconfig)..."
+        ldconfig
+        log_success "ldconfig završen."
+    else
+        log_warning "ldconfig nije u PATH — ako bearerbox ne startuje, pokrenite ručno: ldconfig"
+    fi
+
     log_success "Kamex je uspešno instaliran."
 }
 
@@ -199,9 +210,15 @@ verify_kamex_binaries() {
     log_success "Provera binarnih datoteka i zavisnosti je uspešna."
 }
 
-# Da li korisnik kamex može da pokrene binarne datoteke (isti uslovi kao systemd User=kamex)
+# Da li korisnik kamex može da pokrene binarne datoteke (približno kao systemd User=kamex).
+# Napomena: korisnik kamex ima shell /bin/false — zato prvo su -s /bin/sh (radi bez aktivnog login shella).
+# Ako preskočite: KAMEX_SKIP_USER_SMOKE=1 bash instalacija.sh
 verify_kamex_user_can_run_bins() {
-    local sb
+    if [[ -n "${KAMEX_SKIP_USER_SMOKE:-}" ]]; then
+        log_warning "Preskačem proveru pokretanja kao kamex (KAMEX_SKIP_USER_SMOKE je postavljeno)."
+        return 0
+    fi
+    local sb bearer sms last
     if ! getent passwd kamex >/dev/null 2>&1; then
         log_warning "Korisnik kamex ne postoji — preskačem proveru pokretanja kao kamex."
         return 0
@@ -210,27 +227,47 @@ verify_kamex_user_can_run_bins() {
         log_warning "bearerbox nije na očekivanoj putanji — preskačem proveru kao kamex."
         return 0
     fi
-    if command -v runuser >/dev/null 2>&1; then
-        if ! runuser -u kamex -- "${sb}/bearerbox" -h >/dev/null 2>&1; then
-            log_error "Korisnik kamex ne može da pokrene bearerbox (proverite chmod na direktorijumima i ldd)."
-            exit 1
+    sb="${sb//$'\r'/}"
+    bearer="${sb}/bearerbox"
+    sms="${sb}/smsbox"
+
+    _kamex_run_help_once() {
+        local bin="$1"
+        last=""
+        # 1) su + eksplicitna ljuska (kamex ima često /bin/false u /etc/passwd)
+        if command -v su >/dev/null 2>&1; then
+            last=$(su -s /bin/sh kamex -c "exec $(printf '%q' "$bin") -h" 2>&1) && return 0
         fi
-        if ! runuser -u kamex -- "${sb}/smsbox" -h >/dev/null 2>&1; then
-            log_error "Korisnik kamex ne može da pokrene smsbox."
-            exit 1
+        # 2) runuser (puna putanja — skripta pokrenuta kao „sudo bash“ često nema /usr/sbin u PATH)
+        if [[ -x /usr/sbin/runuser ]]; then
+            last=$(/usr/sbin/runuser -u kamex -- "$bin" -h 2>&1) && return 0
         fi
-    elif command -v sudo >/dev/null 2>&1; then
-        if ! sudo -u kamex -- "${sb}/bearerbox" -h >/dev/null 2>&1; then
-            log_error "Korisnik kamex ne može da pokrene bearerbox (sudo test)."
-            exit 1
+        if [[ -x /sbin/runuser ]]; then
+            last=$(/sbin/runuser -u kamex -- "$bin" -h 2>&1) && return 0
         fi
-        if ! sudo -u kamex -- "${sb}/smsbox" -h >/dev/null 2>&1; then
-            log_error "Korisnik kamex ne može da pokrene smsbox (sudo test)."
-            exit 1
+        if command -v runuser >/dev/null 2>&1; then
+            last=$(runuser -u kamex -- "$bin" -h 2>&1) && return 0
         fi
-    else
-        log_warning "Nema runuser ni sudo — preskačem proveru kao korisnik kamex."
-        return 0
+        # 3) sudo
+        if command -v sudo >/dev/null 2>&1; then
+            last=$(sudo -u kamex -- "$bin" -h 2>&1) && return 0
+        fi
+        log_error "Korisnik kamex ne može da pokrene $(basename "$bin") (su /usr/sbin/runuser / sudo)."
+        if [[ -z "${last//[$'\t\n\r ']/}" ]]; then
+            last="(prazan izlaz — proverite da li postoje 'su', '/usr/sbin/runuser' ili 'sudo')"
+        fi
+        log_info "Poslednji izlaz (stdout+stderr):"
+        echo "$last" | while IFS= read -r line || [[ -n "$line" ]]; do
+            echo -e "${CYAN}  |${NC} $line"
+        done
+        return 1
+    }
+
+    if ! _kamex_run_help_once "$bearer"; then
+        exit 1
+    fi
+    if ! _kamex_run_help_once "$sms"; then
+        exit 1
     fi
     log_success "Pokretanje bearerbox/smsbox kao korisnik kamex (-h) je uspelo."
 }
@@ -281,6 +318,7 @@ print_success_message() {
     echo "  ** Admin panel:   http://localhost:13000/"
     echo "  ** HTTP API:      http://localhost:13013/"
     echo "  ** Log datoteke:  /var/log/kamex/ (ako su podešene)"
+    echo "  ** Ako systemd servis padne (status=1):  journalctl -u kamex-bearerbox -e --no-pager"
     echo ""
     echo "  Brzi start (sa podrazumevanom konfiguracijom):"
     echo "    bearerbox ${CONFIG_FILE} &"

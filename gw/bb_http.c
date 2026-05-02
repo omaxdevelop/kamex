@@ -700,7 +700,9 @@ int httpadmin_start(Cfg *cfg)
     octstr_destroy(ssl_server_key_file);
 #endif /* HAVE_LIBSSL */
 
-    http_open_port_if(ha_port, ssl, ha_interface);
+    if (http_open_port_if(ha_port, ssl, ha_interface) == -1)
+        panic(0, "Failed to bind HTTP admin on port %d (port already in use, wrong admin-interface, or permission denied).",
+              ha_port);
 
     info(0, "Admin panel available at / and /admin");
 
