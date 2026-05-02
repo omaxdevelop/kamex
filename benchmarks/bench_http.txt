@@ -1,0 +1,14 @@
+<h2>HTTP Benchmark</h2>
+
+<p>This benchmark makes <strong>#TIMES#</strong> HTTP requests using the Kannel HTTP client and server.</p>
+
+<div class="stats">
+    <h3>Performance</h3>
+    <span class="stat-value">#AVG_RPS#</span> <span class="stat-unit">requests/sec (avg)</span><br>
+    <span class="stat-value">#DURATION#</span> <span class="stat-unit">seconds total</span>
+</div>
+
+<figure>
+    <img src="bench_http.png" alt="HTTP requests per second">
+    <figcaption>HTTP requests per second during benchmark</figcaption>
+</figure>

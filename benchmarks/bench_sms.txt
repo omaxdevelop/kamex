@@ -1,0 +1,20 @@
+<h2>SMS/SMPP Benchmark</h2>
+
+<p>This benchmark sends <strong>#TIMES#</strong> SMS messages using the SMPP protocol. Each SMS triggers an HTTP request and generates a response message.</p>
+
+<div class="stats">
+    <h3>Performance</h3>
+    <span class="stat-value">#AVG_MPS#</span> <span class="stat-unit">messages/sec (avg)</span><br>
+    <span class="stat-value">#DURATION#</span> <span class="stat-unit">seconds total</span><br>
+    <span class="stat-value">#AVG_RTT#</span> <span class="stat-unit">ms avg round-trip time</span>
+</div>
+
+<figure>
+    <img src="bench_sms_n_messages.png" alt="SMS requests per second">
+    <figcaption>SMS requests per second during benchmark</figcaption>
+</figure>
+
+<figure>
+    <img src="bench_sms_rtt_n_messages.png" alt="Round trip time">
+    <figcaption>SMPP message round trip time</figcaption>
+</figure>

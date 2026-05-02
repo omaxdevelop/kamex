@@ -1,0 +1,32 @@
+#!/bin/sh
+
+BEGIN=benchmarks/report-begin.txt
+END=benchmarks/report-end.txt
+OUT=benchmarks/report.html
+
+rm -f $OUT
+
+sed -e "s|#DATE#|`date '+%Y-%m-%d %H:%M:%S'`|g" \
+    -e "s|#UNAME#|`uname -a`|g" < $BEGIN > $OUT
+
+case "$1" in
+--fast) fast="--fast"; shift ;;
+*) fast="" ;;
+esac
+
+for bench in "$@"
+do
+    echo -n "Running benchmark $bench..."
+    if $bench $fast >> $OUT
+    then
+    	echo " OK."
+    else
+    	echo " FAILURE!"
+	exit 1
+    fi
+done
+
+
+cat < $END >>$OUT
+
+echo "Report generated: $OUT"

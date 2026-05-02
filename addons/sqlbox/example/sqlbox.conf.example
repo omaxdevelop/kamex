@@ -1,0 +1,47 @@
+group = sqlbox
+id = sqlbox-db
+smsbox-id = sqlbox
+#global-sender = ""
+bearerbox-host = localhost
+bearerbox-port = 13001
+smsbox-port = 13005
+smsbox-port-ssl = false
+sql-log-table = sent_sms
+sql-insert-table = send_sms
+log-file = "/var/log/kamex/sqlbox.log"
+log-level = 0
+#ssl-client-certkey-file = ""
+#ssl-server-cert-file = ""
+#ssl-server-key-file = ""
+#ssl-trusted-ca-file = ""
+
+# Database connection examples. Please uncomment as needed
+
+# Example MYSQL Connection
+#group = mysql-connection
+#id = sqlbox-db
+#host = localhost
+#username = myuser
+#password = mypass
+#database = kannel
+
+# Example ORACLE Connection
+#group = oracle-connection
+#id = sqlbox-db
+#username = myuser
+#password = mypass
+#tnsname  = //localhost:1521/XE
+
+# Example POSTGRESQL Connection
+#group = pgsql-connection
+#id = sqlbox-db
+#username = myuser
+#password = mypass
+#database = kannel
+#host = localhost
+
+# Example SQLITE3 Connection
+#group = sqlite3-connection
+#id = sqlbox-db
+#database = /path/to/kannel.db
+#max-connections = 1
