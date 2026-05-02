@@ -33,14 +33,15 @@ print_error() {
 
 # Detect sbin directory (where bearerbox is installed)
 detect_sbindir() {
-    # Check common locations
+    # Check common locations — ne sme podrazumevati putanju ako binarna datoteka ne postoji (systemd status 127)
     if [[ -x "/usr/sbin/bearerbox" ]]; then
         echo "/usr/sbin"
     elif [[ -x "/usr/local/sbin/bearerbox" ]]; then
         echo "/usr/local/sbin"
     else
-        # Default to /usr/local/sbin for manual installs
-        echo "/usr/local/sbin"
+        print_error "Bearerbox not found as an executable in /usr/sbin or /usr/local/sbin."
+        print_error "Run 'make install' or 'make install-strip' from the build tree first, then re-run this script."
+        exit 1
     fi
 }
 

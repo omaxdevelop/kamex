@@ -23,9 +23,9 @@ StateDirectoryMode=0755
 LogsDirectory=kamex
 LogsDirectoryMode=0755
 
-# Security hardening (requires namespace support)
+# Security hardening (ProtectSystem=yes: /usr + /boot RO; strict mounts almost entire FS RO and can break startup)
 NoNewPrivileges=true
-ProtectSystem=strict
+ProtectSystem=yes
 ProtectHome=true
 ReadWritePaths=/var/log/kamex /var/spool/kamex /var/run/kamex
 
