@@ -72,14 +72,30 @@ ssl-certkey-file = /etc/kannel/kannel.pem
 unified-prefix = "00358,+"       # Convert +358... and 0... to 00358...
 ```
 
+### Listening on the server's IP (LAN or public)
+
+By default, HTTP listeners bind to **all** local IPv4 addresses (`0.0.0.0`), so admin (`admin-port`) and sendsms (`sendsms-port`) are reachable as `http://<server-ip>:port/` from other machines (subject to firewall and any `*-allow-ip` rules).
+
+To bind **only** to one address (e.g. the primary public IP on a multi-homed host), set in **`group = core`**:
+
+- `admin-interface`
+- `smsbox-interface` (internal smsbox→bearerbox listener)
+
+and in **`group = smsbox`**:
+
+- `sendsms-interface` (HTTP sendsms API on this NIC)
+- `bearerbox-host` — must be that **same** IP (not `localhost`), otherwise smsbox cannot connect when bearerbox does not listen on loopback.
+
 ### Core Directives Reference
 
 | Directive | Type | Description |
 |-----------|------|-------------|
 | `admin-port` | integer | HTTP admin interface port |
+| `admin-interface` | hostname/IP | Bind admin HTTP to this address; omit or `*` for all interfaces (`0.0.0.0`) |
 | `admin-password` | string | Password for admin commands |
 | `status-password` | string | Password for status-only access |
 | `smsbox-port` | integer | Port for smsbox connections |
+| `smsbox-interface` | hostname/IP | Bind internal smsbox listener to this address; omit or `*` for all interfaces |
 | `log-file` | path | Log file location |
 | `log-level` | 0-4 | Logging verbosity |
 | `access-log` | path | HTTP access log |
@@ -114,8 +130,9 @@ reply-emptymessage = ""
 
 | Directive | Type | Description |
 |-----------|------|-------------|
-| `bearerbox-host` | hostname | Bearerbox hostname |
-| `sendsms-port` | integer | HTTP sendsms port |
+| `bearerbox-host` | hostname | Host where bearerbox listens for smsbox connections (use server IP if bearer binds only that IP) |
+| `sendsms-port` | integer | HTTP sendsms API port |
+| `sendsms-interface` | hostname/IP | Bind sendsms HTTP to this address; omit or `*` for all interfaces |
 | `global-sender` | string | Default sender ID |
 | `sendsms-chars` | string | Allowed characters in sender |
 
