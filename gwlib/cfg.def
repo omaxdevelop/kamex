@@ -82,6 +82,7 @@ SINGLE_GROUP(core,
     OCTSTR(status-password)
     OCTSTR(admin-deny-ip)
     OCTSTR(admin-allow-ip)
+    OCTSTR(admin-api-token)
     OCTSTR(smsbox-port)
     OCTSTR(smsbox-port-ssl)
     OCTSTR(smsbox-interface)

@@ -54,11 +54,12 @@ log-file = /var/log/kannel/bearerbox.log
 log-level = 0                    # 0=debug, 1=info, 2=warning, 3=error, 4=panic
 access-log = /var/log/kannel/access.log
 
-# IP access control
-admin-deny-ip = "*.*.*.*"
-admin-allow-ip = "127.0.0.1"
-box-deny-ip = "*.*.*.*"
-box-allow-ip = "127.0.0.1"
+# IP access control for the HTTP admin panel (WARNING: the lines below allow admin ONLY from localhost.
+# If you copy them literally, remote browsers cannot load admin — comment out or widen admin-allow-ip.)
+#admin-deny-ip = "*.*.*.*"
+#admin-allow-ip = "127.0.0.1"
+#box-deny-ip = "*.*.*.*"
+#box-allow-ip = "127.0.0.1"
 
 # Message store (for persistent queue)
 store-file = /var/lib/kannel/kannel.store
@@ -93,6 +94,9 @@ and in **`group = smsbox`**:
 | `admin-port` | integer | HTTP admin interface port |
 | `admin-interface` | hostname/IP | Bind admin HTTP to this address; omit or `*` for all interfaces (`0.0.0.0`) |
 | `admin-password` | string | Password for admin commands |
+| `admin-allow-ip` | IP patterns | If set with `admin-deny-ip`, only matching clients can use admin (easy to lock yourself to localhost only) |
+| `admin-deny-ip` | IP patterns | Denied client IPs for admin HTTP |
+| `admin-api-token` | string | Optional token for `X-Admin-Token` on admin REST API (`/api/smsc`, etc.) |
 | `status-password` | string | Password for status-only access |
 | `smsbox-port` | integer | Port for smsbox connections |
 | `smsbox-interface` | hostname/IP | Bind internal smsbox listener to this address; omit or `*` for all interfaces |

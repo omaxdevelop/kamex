@@ -2,6 +2,11 @@
 
 All notable changes to Kamex (formerly Kannel) will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- Declare `admin-api-token` in `gwlib/cfg.def` for `group = core` so bearerbox no longer panics at startup (`cfg_get` rejected an unknown variable).
+
 ## [1.8.1] - 2026-01-18
 
 ### Added

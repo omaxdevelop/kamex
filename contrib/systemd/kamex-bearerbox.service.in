@@ -7,6 +7,8 @@ Documentation=https://kamex.dev
 Type=simple
 StandardOutput=journal
 StandardError=journal
+# Validate config before daemon start (does not catch listen/bind failures)
+ExecStartPre=@SBINDIR@/bearerbox -t /etc/kamex/kamex.conf
 ExecStart=@SBINDIR@/bearerbox -v 1 /etc/kamex/kamex.conf
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always

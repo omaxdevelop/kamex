@@ -158,5 +158,7 @@ If you're using Redis for storage, modify the service files to add Redis depende
 
 1. **Permission errors**: Ensure kamex user owns the required directories
 2. **Status check fails**: Verify admin-port and admin-password in kamex.conf
-3. **Service won't start**: Check journalctl logs for detailed error messages
-4. **Configuration issues**: Use `kamex-status.sh` to verify HTTP admin interface
+3. **Service won't start**: `sudo journalctl -u kamex-bearerbox.service -b -n 80 --no-pager` — tražite liniju sa `PANIC` ili `Failed to bind`
+4. **Configuration issues**: `sudo -u kamex /usr/local/sbin/bearerbox -t /etc/kamex/kamex.conf` (ili `/usr/sbin/bearerbox`) — test samo konfiguracije
+5. **ExecStartPre**: The unit runs `bearerbox -t` before the daemon; if Pre fails, the problem is usually config syntax or a missing `core` group directive
+6. **HTTP admin**: `kamex-status.sh` checks the admin interface once bearerbox is up
