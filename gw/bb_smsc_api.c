@@ -94,8 +94,8 @@ static SmscDynamicRecord *parse_smsc_record_json(cJSON *root, int require_all, O
         rec->password = NULL;
     } else {
         rec->password = octstr_create(j->valuestring);
-        if (octstr_len(rec->password) > 16) {
-            *err = octstr_create("password exceeds 16 characters");
+        if (octstr_len(rec->password) > 50) {
+            *err = octstr_create("password exceeds 50 characters");
             goto fail;
         }
     }
@@ -342,6 +342,19 @@ void bb_smsc_api_dispatch(HTTPClient *client, Octstr *url, List *headers, Octstr
             merge_put_json(merged, root);
         }
         cJSON_Delete(root);
+
+        if (octstr_len(merged->system_id) > 16) {
+            smsc_dynamic_record_destroy(merged);
+            reply = json_err("system_id exceeds 16 characters");
+            api_reply_json(client, HTTP_BAD_REQUEST, reply);
+            goto cleanup;
+        }
+        if (octstr_len(merged->password) > 50) {
+            smsc_dynamic_record_destroy(merged);
+            reply = json_err("password exceeds 50 characters");
+            api_reply_json(client, HTTP_BAD_REQUEST, reply);
+            goto cleanup;
+        }
 
         switch (smsc2_apply_smsc_put(rest_id, merged)) {
             case 0:

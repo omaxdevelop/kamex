@@ -1044,7 +1044,7 @@ components:
           description: SMPP system id (username for bind)
         password:
           type: string
-          maxLength: 16
+          maxLength: 50
           description: SMPP password
         host:
           type: string
@@ -1086,7 +1086,7 @@ components:
           maxLength: 16
         password:
           type: string
-          maxLength: 16
+          maxLength: 50
         transceiver:
           type: boolean
 
